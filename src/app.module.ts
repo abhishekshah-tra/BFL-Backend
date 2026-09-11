@@ -13,6 +13,9 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 
 import { mongoConfig } from './database/mongo.config.js';
+import { MenuModule } from './modules/menu/menu.module.js';
+import { ActionModule } from './modules/action/action.module.js';
+import { ScreensModule } from './modules/screens/screens.module.js';
 
 @Module({
   imports: [
@@ -32,6 +35,9 @@ import { mongoConfig } from './database/mongo.config.js';
     PermissionsModule,
     HierarchyModule,
     AuditModule,
+    MenuModule,
+    ActionModule,
+    ScreensModule,
   ],
 
   controllers: [AppController],

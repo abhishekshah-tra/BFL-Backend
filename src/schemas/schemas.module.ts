@@ -1,8 +1,39 @@
 import { Module, OnModuleInit } from '@nestjs/common';
-import { MongooseModule, InjectConnection } from '@nestjs/mongoose';
+import {
+  InjectConnection,
+  MongooseModule,
+} from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 
-import { User, UserSchema } from './user.schema.js';
+import {
+  User,
+  UserSchema,
+} from './user.schema.js';
+
+import {
+  Role,
+  RoleSchema,
+} from './role.schema.js';
+
+import {
+  Menu,
+  MenuSchema,
+} from './menu.schema.js';
+
+import {
+  Screen,
+  ScreenSchema,
+} from './screen.schema.js';
+
+import {
+  Action,
+  ActionSchema,
+} from './action.schema.js';
+
+import {
+  RolePermission,
+  RolePermissionSchema,
+} from './role-permission.schema.js';
 
 @Module({
   imports: [
@@ -11,9 +42,32 @@ import { User, UserSchema } from './user.schema.js';
         name: User.name,
         schema: UserSchema,
       },
+      {
+        name: Role.name,
+        schema: RoleSchema,
+      },
+      {
+        name: Menu.name,
+        schema: MenuSchema,
+      },
+      {
+        name: Screen.name,
+        schema: ScreenSchema,
+      },
+      {
+        name: Action.name,
+        schema: ActionSchema,
+      },
+      {
+        name: RolePermission.name,
+        schema: RolePermissionSchema,
+      },
     ]),
   ],
-  exports: [MongooseModule],
+
+  exports: [
+    MongooseModule,
+  ],
 })
 export class SchemasModule implements OnModuleInit {
   constructor(
@@ -21,16 +75,57 @@ export class SchemasModule implements OnModuleInit {
     private readonly connection: Connection,
   ) {}
 
-  async onModuleInit() {
-    try {
-      await this.connection.model(User.name).createCollection();
+  async onModuleInit(): Promise<void> {
+    const models = [
+      {
+        name: User.name,
+        collection: 'users',
+      },
+      {
+        name: Role.name,
+        collection: 'roles',
+      },
+      {
+        name: Menu.name,
+        collection: 'menus',
+      },
+      {
+        name: Screen.name,
+        collection: 'screens',
+      },
+      {
+        name: Action.name,
+        collection: 'actions',
+      },
+      {
+        name: RolePermission.name,
+        collection: 'role_permissions',
+      },
+    ];
 
-      console.log('✅ users collection created/verified');
-    } catch (error:any) {
-      console.error(
-        '❌ Failed to create users collection:',
-        error.message,
-      );
+    for (const model of models) {
+      try {
+        const mongooseModel = this.connection.model(model.name);
+
+        await mongooseModel.createCollection();
+
+        console.log(
+          `✅ ${model.collection} collection created/verified`,
+        );
+      } catch (error: any) {
+        // Collection already exists
+        if (error?.codeName === 'NamespaceExists') {
+          console.log(
+            `✅ ${model.collection} collection already exists`,
+          );
+          continue;
+        }
+
+        console.error(
+          `❌ Failed to create ${model.collection} collection:`,
+          error?.message || error,
+        );
+      }
     }
   }
 }
