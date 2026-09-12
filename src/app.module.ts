@@ -7,12 +7,12 @@ import { DatabaseModule } from './database/database.module.js';
 
 import { AuthModule } from './auth/auth.module.js';
 import { UsersModule } from './modules/users/users.module.js';
-import { RolesModule } from './modules/roles/roles.module.js';
 import { PermissionsModule } from './modules/permissions/permissions.module.js';
 import { HierarchyModule } from './modules/hierarchy/hierarchy.module.js';
 import { AuditModule } from './modules/audit/audit.module.js';
-import { MenuModule } from './modules/menu/menu.module.js';
-import { ActionModule } from './modules/action/action.module.js';
+import { MenusModule } from './modules/menu/menu.module.js';
+import { ActionsModule } from './modules/action/action.module.js';
+import { RolesModule } from './modules/roles/roles.module.js';
 import { ScreensModule } from './modules/screens/screens.module.js';
 
 @Module({
@@ -25,8 +25,8 @@ import { ScreensModule } from './modules/screens/screens.module.js';
     PermissionsModule,
     HierarchyModule,
     AuditModule,
-    MenuModule,
-    ActionModule,
+    MenusModule,
+    ActionsModule,
     ScreensModule,
   ],
 

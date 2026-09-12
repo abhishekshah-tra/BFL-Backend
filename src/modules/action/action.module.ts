@@ -1,9 +1,29 @@
 import { Module } from '@nestjs/common';
-import { ActionService } from './action.service.js';
-import { ActionController } from './action.controller.js';
+import { MongooseModule } from '@nestjs/mongoose';
+
+import {
+  Action,
+  ActionSchema,
+} from '../../schemas/action.schema.js';
+import { ActionsController } from './action.controller.js';
+import { ActionsService } from './action.service.js';
+
+
 
 @Module({
-  controllers: [ActionController],
-  providers: [ActionService],
+  imports: [
+    MongooseModule.forFeature([
+      {
+        name: Action.name,
+        schema: ActionSchema,
+      },
+    ]),
+  ],
+
+  controllers: [ActionsController],
+
+  providers: [ActionsService],
+
+  exports: [ActionsService],
 })
-export class ActionModule {}
+export class ActionsModule {}

@@ -1,9 +1,27 @@
 import { Module } from '@nestjs/common';
-import { MenuService } from './menu.service.js';
-import { MenuController } from './menu.controller.js';
+import { MongooseModule } from '@nestjs/mongoose';
+
+import {
+  Menu,
+  MenuSchema,
+} from '../../schemas/menu.schema.js';
+import { MenusController } from './menu.controller.js';
+import { MenusService } from './menu.service.js';
 
 @Module({
-  controllers: [MenuController],
-  providers: [MenuService],
+  imports: [
+    MongooseModule.forFeature([
+      {
+        name: Menu.name,
+        schema: MenuSchema,
+      },
+    ]),
+  ],
+
+  controllers: [MenusController],
+
+  providers: [MenusService],
+
+  exports: [MenusService],
 })
-export class MenuModule {}
+export class MenusModule {}

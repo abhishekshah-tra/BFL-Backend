@@ -1,34 +1,48 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { ActionService } from './action.service.js';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+} from '@nestjs/common';
+
 import { CreateActionDto } from './dto/create-action.dto.js';
 import { UpdateActionDto } from './dto/update-action.dto.js';
+import { ActionsService } from './action.service.js';
 
-@Controller('action')
-export class ActionController {
-  constructor(private readonly actionService: ActionService) {}
+@Controller('actions')
+export class ActionsController {
+  constructor(
+    private readonly actionsService: ActionsService,
+  ) {}
 
   @Post()
-  create(@Body() createActionDto: CreateActionDto) {
-    return this.actionService.create(createActionDto);
+  create(@Body() dto: CreateActionDto) {
+    return this.actionsService.create(dto);
   }
 
   @Get()
   findAll() {
-    return this.actionService.findAll();
+    return this.actionsService.findAll();
   }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.actionService.findOne(+id);
+    return this.actionsService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateActionDto: UpdateActionDto) {
-    return this.actionService.update(+id, updateActionDto);
+  update(
+    @Param('id') id: string,
+    @Body() dto: UpdateActionDto,
+  ) {
+    return this.actionsService.update(id, dto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.actionService.remove(+id);
+    return this.actionsService.remove(id);
   }
 }

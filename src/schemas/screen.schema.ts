@@ -59,11 +59,6 @@ export class Screen {
 export const ScreenSchema =
   SchemaFactory.createForClass(Screen);
 
-ScreenSchema.index(
-  { code: 1 },
-  { unique: true },
-);
-
 ScreenSchema.index({
   menuId: 1,
 });

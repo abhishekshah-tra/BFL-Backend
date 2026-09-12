@@ -59,10 +59,6 @@ export class Menu {
 export const MenuSchema =
   SchemaFactory.createForClass(Menu);
 
-MenuSchema.index(
-  { code: 1 },
-  { unique: true },
-);
 
 MenuSchema.index({
   parentId: 1,

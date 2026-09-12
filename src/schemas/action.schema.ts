@@ -39,8 +39,3 @@ export class Action {
 
 export const ActionSchema =
   SchemaFactory.createForClass(Action);
-
-ActionSchema.index(
-  { code: 1 },
-  { unique: true },
-);

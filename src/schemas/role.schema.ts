@@ -44,8 +44,3 @@ export class Role {
 }
 
 export const RoleSchema = SchemaFactory.createForClass(Role);
-
-RoleSchema.index(
-  { code: 1 },
-  { unique: true },
-);
