@@ -4,40 +4,43 @@ import { HydratedDocument } from 'mongoose';
 export type ActionDocument = HydratedDocument<Action>;
 
 @Schema({
-    timestamps: true,
-    collection: 'actions',
+  timestamps: true,
+  collection: 'actions',
 })
 export class Action {
-    @Prop({
-        required: true,
-        trim: true,
-    })
-    name: string;
+  @Prop({
+    type: String,
+    required: true,
+    trim: true,
+  })
+  name: string;
 
-    @Prop({
-        required: true,
-        unique: true,
-        uppercase: true,
-        trim: true,
-    })
-    code: string;
+  @Prop({
+    type: String,
+    required: true,
+    unique: true,
+    uppercase: true,
+    trim: true,
+  })
+  code: string;
 
-    @Prop({
-        trim: true,
-    })
-    description?: string;
+  @Prop({
+    type: String,
+    trim: true,
+  })
+  description?: string;
 
-    @Prop({
-        default: true,
-    })
-    isActive: boolean;
+  @Prop({
+    type: Boolean,
+    default: true,
+  })
+  isActive: boolean;
 }
 
-export const ActionSchema = SchemaFactory.createForClass(Action);
+export const ActionSchema =
+  SchemaFactory.createForClass(Action);
 
 ActionSchema.index(
-    { code: 1 },
-    {
-        unique: true,
-    },
+  { code: 1 },
+  { unique: true },
 );

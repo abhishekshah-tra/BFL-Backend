@@ -31,6 +31,7 @@ export class RolePermission {
   actionId: Types.ObjectId;
 
   @Prop({
+    type: Boolean,
     default: true,
   })
   isActive: boolean;

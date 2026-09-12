@@ -9,12 +9,14 @@ export type MenuDocument = HydratedDocument<Menu>;
 })
 export class Menu {
   @Prop({
+    type: String,
     required: true,
     trim: true,
   })
   name: string;
 
   @Prop({
+    type: String,
     required: true,
     unique: true,
     uppercase: true,
@@ -30,28 +32,42 @@ export class Menu {
   parentId?: Types.ObjectId | null;
 
   @Prop({
+    type: String,
     trim: true,
   })
   route?: string;
 
   @Prop({
+    type: String,
     trim: true,
   })
   icon?: string;
 
   @Prop({
+    type: Number,
     default: 0,
   })
   sortOrder: number;
 
   @Prop({
+    type: Boolean,
     default: true,
   })
   isActive: boolean;
 }
 
-export const MenuSchema = SchemaFactory.createForClass(Menu);
+export const MenuSchema =
+  SchemaFactory.createForClass(Menu);
 
-MenuSchema.index({ code: 1 }, { unique: true });
-MenuSchema.index({ parentId: 1 });
-MenuSchema.index({ sortOrder: 1 });
+MenuSchema.index(
+  { code: 1 },
+  { unique: true },
+);
+
+MenuSchema.index({
+  parentId: 1,
+});
+
+MenuSchema.index({
+  sortOrder: 1,
+});

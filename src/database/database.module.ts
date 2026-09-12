@@ -1,19 +1,24 @@
-import { Global, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 
 import { mongoConfig } from './mongo.config.js';
 
-@Global()
 @Module({
   imports: [
-    ConfigModule,
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
 
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: mongoConfig,
     }),
+  ],
+
+  exports: [
+    MongooseModule,
   ],
 })
 export class DatabaseModule {}
