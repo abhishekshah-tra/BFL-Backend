@@ -5,7 +5,11 @@ import { AppModule } from './app.module.js';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-
+  app.setGlobalPrefix('api');
+  app.enableCors({
+    origin: process.env.CORS_ORIGINS?.split(','),
+    credentials: true,
+  });
   const config = new DocumentBuilder()
     .setTitle('BFL API')
     .setDescription('BFL Backend API Documentation')
