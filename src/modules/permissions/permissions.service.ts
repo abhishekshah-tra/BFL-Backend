@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
@@ -29,6 +30,7 @@ import {
 
 import { AssignPermissionDto } from './dto/assign-permission.dto.js';
 import { UpdatePermissionDto } from './dto/update-permission.dto.js';
+import { log } from 'node:console';
 
 @Injectable()
 export class PermissionsService {
@@ -95,7 +97,18 @@ export class PermissionsService {
   }
 
   async findByRole(roleId: string) {
-    const role = await this.roleModel.findById(roleId).lean();
+    if (!Types.ObjectId.isValid(roleId)) {
+      throw new BadRequestException('Invalid role ID');
+    }
+
+    const objectId = new Types.ObjectId(roleId);
+
+    const role = await this.roleModel
+      .findOne({
+        _id: objectId,
+        isActive: true,
+      })
+      .lean();
 
     if (!role) {
       throw new NotFoundException('Role not found');
@@ -103,11 +116,17 @@ export class PermissionsService {
 
     return this.rolePermissionModel
       .find({
-        roleId,
+        roleId: objectId,
         isActive: true,
       })
-      .populate('screenId', 'name code')
-      .populate('actionId', 'name code')
+      .populate({
+        path: 'screenId',
+        select: 'name code',
+      })
+      .populate({
+        path: 'actionId',
+        select: 'name code',
+      })
       .lean();
   }
 
