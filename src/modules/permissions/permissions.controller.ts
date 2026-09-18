@@ -13,12 +13,13 @@ import { PermissionsService } from './permissions.service.js';
 
 import { AssignPermissionDto } from './dto/assign-permission.dto.js';
 import { UpdatePermissionDto } from './dto/update-permission.dto.js';
+import { UpdateRolePermissionsDto } from './dto/update-role-permissions.dto.js';
 
 @Controller('permissions')
 export class PermissionsController {
   constructor(
     private readonly permissionsService: PermissionsService,
-  ) {}
+  ) { }
 
   @Post()
   create(@Body() dto: AssignPermissionDto) {
@@ -36,11 +37,12 @@ export class PermissionsController {
   }
 
   @Put('role/:roleId')
-  updateRoleScreenPermissions(
+  updateRolePermissions(
     @Param('roleId') roleId: string,
-    @Body() dto: UpdatePermissionDto,
+    @Body()
+    dto: UpdateRolePermissionsDto,
   ) {
-    return this.permissionsService.updateRoleScreenPermissions(
+    return this.permissionsService.updateRolePermissions(
       roleId,
       dto,
     );

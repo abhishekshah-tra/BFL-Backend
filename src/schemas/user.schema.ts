@@ -33,11 +33,11 @@ export class User {
   password: string;
 
   @Prop({
-    type: [Types.ObjectId],
+    type: Types.ObjectId,
     ref: 'Role',
-    default: [],
+    required: true,
   })
-  roleIds: Types.ObjectId[];
+  roleId: Types.ObjectId;
 
   @Prop({
     default: true,
@@ -48,4 +48,4 @@ export class User {
 export const UserSchema = SchemaFactory.createForClass(User);
 
 UserSchema.index({ email: 1 }, { unique: true });
-UserSchema.index({ roleIds: 1 });
+UserSchema.index({ roleId: 1 });

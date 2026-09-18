@@ -1,56 +1,66 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
-  IsArray,
   IsBoolean,
   IsEmail,
   IsMongoId,
+  IsNotEmpty,
   IsOptional,
   IsString,
   MinLength,
 } from 'class-validator';
 
+import {
+  ApiProperty,
+  ApiPropertyOptional,
+} from '@nestjs/swagger';
+
 export class CreateUserDto {
   @ApiProperty({
     example: 'Rishi',
+    description: 'User first name',
   })
   @IsString()
+  @IsNotEmpty()
   firstName: string;
 
   @ApiPropertyOptional({
     example: 'Kumar',
+    description: 'User last name',
   })
-  @IsOptional()
   @IsString()
+  @IsOptional()
   lastName?: string;
 
   @ApiProperty({
-    example: 'user@example.com',
+    example: 'rishi.kumar@example.com',
+    description: 'Unique user email address',
   })
   @IsEmail()
+  @IsNotEmpty()
   email: string;
 
   @ApiProperty({
-    example: 'StrongPassword123',
+    example: 'Password@123',
+    description: 'User login password',
+    minLength: 6,
   })
   @IsString()
-  @MinLength(8)
+  @MinLength(6)
   password: string;
 
   @ApiProperty({
-    example: [
-      '68b123456789abcdef123456',
-    ],
+    example: '6aa5869918197151ad26f95e',
+    description: 'Role ID assigned to the user',
   })
-  @IsArray()
-  @IsMongoId({
-    each: true,
-  })
-  roleIds: string[];
+  @IsMongoId()
+  @IsNotEmpty()
+  roleId: string;
 
   @ApiPropertyOptional({
+    example: true,
+    description: 'User active status',
     default: true,
   })
-  @IsOptional()
   @IsBoolean()
+  @IsOptional()
   isActive?: boolean;
 }
