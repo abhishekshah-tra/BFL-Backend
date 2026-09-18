@@ -14,6 +14,9 @@ import { MenusModule } from './modules/menu/menu.module.js';
 import { ActionsModule } from './modules/action/action.module.js';
 import { RolesModule } from './modules/roles/roles.module.js';
 import { ScreensModule } from './modules/screens/screens.module.js';
+import { ConfigurationModule } from './modules/configuration/configuration.module.js';
+import { ProcessmasterModule } from './modules/processmaster/processmaster.module.js';
+import { WarehousemasterModule } from './modules/warehousemaster/warehousemaster.module.js';
 
 @Module({
   imports: [
@@ -28,6 +31,9 @@ import { ScreensModule } from './modules/screens/screens.module.js';
     MenusModule,
     ActionsModule,
     ScreensModule,
+    ConfigurationModule,
+    ProcessmasterModule,
+    WarehousemasterModule,
   ],
 
   controllers: [

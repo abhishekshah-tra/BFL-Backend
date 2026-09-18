@@ -213,6 +213,51 @@ export const defaultMenus = [
     isActive: true,
   },
 
+// CONFIGURATION
+// ============================================================
+
+{
+  name: 'Configuration',
+  code: 'CONFIGURATION',
+  parentCode: null,
+  route: '/configuration',
+  icon: 'settings',
+  sortOrder: 12,
+  isActive: true,
+},
+
+{
+  name: 'Warehouse Master',
+  code: 'WAREHOUSE_MASTER',
+  parentCode: 'CONFIGURATION',
+  route: '/configuration/warehouse-master',
+  icon: 'warehouse',
+  sortOrder: 1,
+  isActive: true,
+},
+
+{
+  name: 'Process Master',
+  code: 'PROCESS_MASTER',
+  parentCode: 'CONFIGURATION',
+  route: '/configuration/process-master',
+  icon: 'workflow',
+  sortOrder: 2,
+  isActive: true,
+},
+
+{
+  name: 'Warehouse Configuration',
+  code: 'WAREHOUSE_CONFIGURATION',
+  parentCode: 'CONFIGURATION',
+  route: '/configuration/warehouse-configuration',
+  icon: 'settings',
+  sortOrder: 3,
+  isActive: true,
+},
+
+
+
   // ============================================================
   // SETTINGS
   // ============================================================

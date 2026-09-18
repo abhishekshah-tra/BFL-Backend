@@ -95,6 +95,8 @@ export const defaultScreens = [
     isActive: true,
   },
 
+  
+
   // ============================================================
   // ANALYTICS & REPORTS
   // ============================================================
@@ -182,6 +184,51 @@ export const defaultScreens = [
     sortOrder: 3,
     isActive: true,
   },
+
+
+  // ============================================================
+// CONFIGURATION
+// ============================================================
+
+{
+  name: 'Warehouse Master',
+  code: 'WAREHOUSE_MASTER',
+  menuCode: 'CONFIGURATION',
+  route: '/configuration/warehouse-master',
+  sortOrder: 1,
+  isActive: true,
+},
+
+{
+  name: 'Process Master',
+  code: 'PROCESS_MASTER',
+  menuCode: 'CONFIGURATION',
+  route: '/configuration/process-master',
+  sortOrder: 2,
+  isActive: true,
+},
+
+{
+  name: 'Warehouse Configuration',
+  code: 'WAREHOUSE_CONFIGURATION',
+  menuCode: 'CONFIGURATION',
+  route: '/configuration/warehouse-configuration',
+  sortOrder: 3,
+  isActive: true,
+},
+
+// ============================================================
+// SETTINGS
+// ============================================================
+
+{
+  name: 'Settings',
+  code: 'SETTINGS',
+  menuCode: 'SETTINGS',
+  route: '/settings',
+  sortOrder: 1,
+  isActive: true,
+},
 
   // ============================================================
   // SETTINGS
