@@ -320,6 +320,9 @@ import { defaultActions } from './data/actions.seed.js';
 import { defaultMenus } from './data/menus.seed.js';
 import { defaultScreens } from './data/screens.seed.js';
 import { defaultPermissions } from './data/permissions.seed.js';
+import { defaultProcesses } from './data/processes.seed.js';
+import { defaultWarehouses } from './data/warehouses.seed.js';
+import { defaultConfigurations } from './data/configurations.seed.js';
 
 import { Role, RoleDocument } from '../role.schema.js';
 import { Action, ActionDocument } from '../action.schema.js';
@@ -329,6 +332,12 @@ import {
   RolePermission,
   RolePermissionDocument,
 } from '../role-permission.schema.js';
+import { Process, ProcessDocument } from '../process.schema.js';
+import { Warehouse, WarehouseDocument } from '../warehouse.schema.js';
+import {
+  Configuration,
+  ConfigurationDocument,
+} from '../configuration.schema.js';
 
 @Injectable()
 export class SeedService {
@@ -349,6 +358,15 @@ export class SeedService {
 
     @InjectModel(RolePermission.name)
     private readonly rolePermissionModel: Model<RolePermissionDocument>,
+
+    @InjectModel(Process.name)
+    private readonly processModel: Model<ProcessDocument>,
+
+    @InjectModel(Warehouse.name)
+    private readonly warehouseModel: Model<WarehouseDocument>,
+
+    @InjectModel(Configuration.name)
+    private readonly configurationModel: Model<ConfigurationDocument>,
   ) {}
 
   // ============================================================
@@ -363,6 +381,9 @@ export class SeedService {
     await this.seedMenus();
     await this.seedScreens();
     await this.seedPermissions();
+    await this.seedProcesses();
+    await this.seedWarehouses();
+    await this.seedConfigurations();
 
     this.logger.log('🌱 Database seed completed successfully');
   }
@@ -846,6 +867,183 @@ export class SeedService {
 
     this.logger.log(
       `✅ Permissions seeded: ${operations.length}`,
+    );
+  }
+
+  // ============================================================
+  // PROCESSES
+  // ============================================================
+
+  private async seedProcesses(): Promise<void> {
+    this.logger.log('🌱 Seeding processes...');
+
+    for (const process of defaultProcesses) {
+      await this.processModel.updateOne(
+        {
+          code: process.code,
+        },
+        {
+          $set: {
+            name: process.name,
+            description: process.description,
+            sequence: process.sequence,
+            capacityPerHour: process.capacityPerHour,
+            sla: process.sla,
+            slaUnit: process.slaUnit,
+            isActive: process.isActive,
+          },
+          $setOnInsert: {
+            code: process.code,
+          },
+        },
+        {
+          upsert: true,
+        },
+      );
+    }
+
+    this.logger.log(`✅ Processes seeded: ${defaultProcesses.length}`);
+  }
+
+  // ============================================================
+  // WAREHOUSES
+  // ============================================================
+
+  private async seedWarehouses(): Promise<void> {
+    this.logger.log('🌱 Seeding warehouses...');
+
+    for (const warehouse of defaultWarehouses) {
+      await this.warehouseModel.updateOne(
+        {
+          code: warehouse.code,
+        },
+        {
+          $set: {
+            name: warehouse.name,
+            description: warehouse.description,
+            location: warehouse.location,
+            country: warehouse.country,
+            timeZone: warehouse.timeZone,
+            isActive: warehouse.isActive,
+          },
+          $setOnInsert: {
+            code: warehouse.code,
+          },
+        },
+        {
+          upsert: true,
+        },
+      );
+    }
+
+    this.logger.log(`✅ Warehouses seeded: ${defaultWarehouses.length}`);
+  }
+
+  // ============================================================
+  // WAREHOUSE CONFIGURATIONS
+  // ============================================================
+
+  private async seedConfigurations(): Promise<void> {
+    this.logger.log('🌱 Seeding warehouse configurations...');
+
+    const [warehouses, processes] = await Promise.all([
+      this.warehouseModel
+        .find({
+          code: {
+            $in: defaultConfigurations.map(
+              (item) => item.warehouseCode,
+            ),
+          },
+        })
+        .select('_id code')
+        .lean(),
+      this.processModel
+        .find({
+          code: {
+            $in: defaultProcesses.map((item) => item.code),
+          },
+        })
+        .select('_id code')
+        .lean(),
+    ]);
+
+    const warehouseMap = new Map(
+      warehouses.map((warehouse) => [warehouse.code, warehouse._id]),
+    );
+    const processMap = new Map(
+      processes.map((process) => [process.code, process._id]),
+    );
+
+    for (const config of defaultConfigurations) {
+      const warehouseId = warehouseMap.get(config.warehouseCode);
+
+      if (!warehouseId) {
+        throw new Error(
+          `Warehouse not found for configuration: ${config.warehouseCode}`,
+        );
+      }
+
+      const mappedProcesses = config.processes.map((item) => {
+        const processId = processMap.get(item.processCode);
+
+        if (!processId) {
+          throw new Error(
+            `Process not found for ${config.warehouseCode}: ${item.processCode}`,
+          );
+        }
+
+        return {
+          processId,
+          enabled: item.enabled,
+          capacityPerHour: item.capacityPerHour,
+          sla: item.sla,
+          slaUnit: item.slaUnit,
+        };
+      });
+
+      const mappedResources = config.resources.map((item) => {
+        const processId = processMap.get(item.processCode);
+
+        if (!processId) {
+          throw new Error(
+            `Process not found for resource ${item.resourceType}: ${item.processCode}`,
+          );
+        }
+
+        return {
+          resourceType: item.resourceType,
+          processId,
+          plannedQuantity: item.plannedQuantity,
+          availableQuantity: item.availableQuantity,
+          productivity: item.productivity,
+          unit: item.unit,
+          isActive: item.isActive,
+        };
+      });
+
+      await this.configurationModel.updateOne(
+        {
+          warehouseId,
+          name: config.name,
+        },
+        {
+          $set: {
+            warehouseId,
+            name: config.name,
+            effectiveFrom: new Date(config.effectiveFrom),
+            isActive: config.isActive,
+            processes: mappedProcesses,
+            resources: mappedResources,
+          },
+        },
+        {
+          upsert: true,
+        },
+      );
+    }
+
+    this.logger.log(
+      `✅ Configurations seeded: ${defaultConfigurations.length}`,
     );
   }
 }

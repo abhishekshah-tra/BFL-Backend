@@ -1,11 +1,31 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  UsePipes,
+  ValidationPipe,
+} from '@nestjs/common';
+
 import { ConfigurationService } from './configuration.service.js';
 import { CreateConfigurationDto } from './dto/create-configuration.dto.js';
 import { UpdateConfigurationDto } from './dto/update-configuration.dto.js';
 
 @Controller('configuration')
+@UsePipes(
+  new ValidationPipe({
+    whitelist: true,
+    transform: true,
+    transformOptions: { enableImplicitConversion: true },
+  }),
+)
 export class ConfigurationController {
-  constructor(private readonly configurationService: ConfigurationService) {}
+  constructor(
+    private readonly configurationService: ConfigurationService,
+  ) {}
 
   @Post()
   create(@Body() createConfigurationDto: CreateConfigurationDto) {
@@ -19,16 +39,19 @@ export class ConfigurationController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.configurationService.findOne(+id);
+    return this.configurationService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateConfigurationDto: UpdateConfigurationDto) {
-    return this.configurationService.update(+id, updateConfigurationDto);
+  update(
+    @Param('id') id: string,
+    @Body() updateConfigurationDto: UpdateConfigurationDto,
+  ) {
+    return this.configurationService.update(id, updateConfigurationDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.configurationService.remove(+id);
+    return this.configurationService.remove(id);
   }
 }

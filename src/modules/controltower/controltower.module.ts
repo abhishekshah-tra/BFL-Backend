@@ -10,16 +10,12 @@ import {
   Warehouse,
   WarehouseSchema,
 } from '../../schemas/warehouse.schema.js';
-import { ConfigurationController } from './configuration.controller.js';
-import { ConfigurationService } from './configuration.service.js';
+import { ControltowerController } from './controltower.controller.js';
+import { ControltowerService } from './controltower.service.js';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
-      {
-        name: Configuration.name,
-        schema: ConfigurationSchema,
-      },
       {
         name: Warehouse.name,
         schema: WarehouseSchema,
@@ -28,9 +24,13 @@ import { ConfigurationService } from './configuration.service.js';
         name: Process.name,
         schema: ProcessSchema,
       },
+      {
+        name: Configuration.name,
+        schema: ConfigurationSchema,
+      },
     ]),
   ],
-  controllers: [ConfigurationController],
-  providers: [ConfigurationService],
+  controllers: [ControltowerController],
+  providers: [ControltowerService],
 })
-export class ConfigurationModule {}
+export class ControltowerModule {}

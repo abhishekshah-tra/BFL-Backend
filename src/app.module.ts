@@ -17,11 +17,11 @@ import { ScreensModule } from './modules/screens/screens.module.js';
 import { ConfigurationModule } from './modules/configuration/configuration.module.js';
 import { ProcessmasterModule } from './modules/processmaster/processmaster.module.js';
 import { WarehousemasterModule } from './modules/warehousemaster/warehousemaster.module.js';
+import { ControltowerModule } from './modules/controltower/controltower.module.js';
 
 @Module({
   imports: [
     DatabaseModule,
-
     AuthModule,
     UsersModule,
     RolesModule,
@@ -34,6 +34,7 @@ import { WarehousemasterModule } from './modules/warehousemaster/warehousemaster
     ConfigurationModule,
     ProcessmasterModule,
     WarehousemasterModule,
+    ControltowerModule,
   ],
 
   controllers: [

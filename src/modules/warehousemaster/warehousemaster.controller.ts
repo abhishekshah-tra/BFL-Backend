@@ -1,9 +1,16 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UsePipes, ValidationPipe } from '@nestjs/common';
 import { WarehousemasterService } from './warehousemaster.service.js';
 import { CreateWarehousemasterDto } from './dto/create-warehousemaster.dto.js';
 import { UpdateWarehousemasterDto } from './dto/update-warehousemaster.dto.js';
 
 @Controller('warehousemaster')
+@UsePipes(
+  new ValidationPipe({
+    whitelist: true,
+    transform: true,
+    transformOptions: { enableImplicitConversion: true },
+  }),
+)
 export class WarehousemasterController {
   constructor(private readonly warehousemasterService: WarehousemasterService) {}
 

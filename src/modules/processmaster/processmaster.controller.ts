@@ -1,9 +1,16 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UsePipes, ValidationPipe } from '@nestjs/common';
 import { ProcessmasterService } from './processmaster.service.js';
 import { CreateProcessmasterDto } from './dto/create-processmaster.dto.js';
 import { UpdateProcessmasterDto } from './dto/update-processmaster.dto.js';
 
 @Controller('processmaster')
+@UsePipes(
+  new ValidationPipe({
+    whitelist: true,
+    transform: true,
+    transformOptions: { enableImplicitConversion: true },
+  }),
+)
 export class ProcessmasterController {
   constructor(private readonly processmasterService: ProcessmasterService) {}
 

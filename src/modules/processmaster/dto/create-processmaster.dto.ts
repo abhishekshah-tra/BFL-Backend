@@ -1,4 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 import {
     IsString,
     IsNotEmpty,
@@ -40,6 +41,7 @@ export class CreateProcessmasterDto {
         example: 1,
         description: 'Sequence/order in which the process is executed',
     })
+    @Type(() => Number)
     @IsNumber()
     @Min(1)
     sequence: number;
@@ -48,6 +50,7 @@ export class CreateProcessmasterDto {
         example: 100,
         description: 'Process capacity per hour',
     })
+    @Type(() => Number)
     @IsNumber()
     @Min(0)
     capacityPerHour: number;
@@ -56,6 +59,7 @@ export class CreateProcessmasterDto {
         example: 2,
         description: 'Service Level Agreement value',
     })
+    @Type(() => Number)
     @IsNumber()
     @Min(0)
     sla: number;
