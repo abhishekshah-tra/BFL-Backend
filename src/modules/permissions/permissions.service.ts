@@ -31,6 +31,7 @@ import {
 import { AssignPermissionDto } from './dto/assign-permission.dto.js';
 import { UpdatePermissionDto } from './dto/update-permission.dto.js';
 import { log } from 'node:console';
+import { UpdateRolePermissionsDto } from './dto/update-role-permissions.dto.js';
 
 @Injectable()
 export class PermissionsService {
@@ -46,7 +47,7 @@ export class PermissionsService {
 
     @InjectModel(Action.name)
     private readonly actionModel: Model<ActionDocument>,
-  ) {}
+  ) { }
 
   async create(dto: AssignPermissionDto) {
     const [role, screen, action] = await Promise.all([
@@ -183,69 +184,247 @@ export class PermissionsService {
     };
   }
 
-  /**
-   * Replace all permissions for a role/screen.
-   */
-  async updateRoleScreenPermissions(
+
+  async updateRolePermissions(
     roleId: string,
-    dto: UpdatePermissionDto,
+    dto: UpdateRolePermissionsDto,
   ) {
-    const role = await this.roleModel.findById(roleId);
+
+    if (!Types.ObjectId.isValid(roleId)) {
+      throw new BadRequestException(
+        'Invalid role ID',
+      );
+    }
+
+    const roleObjectId =
+      new Types.ObjectId(roleId);
+
+    const role = await this.roleModel
+      .findOne({
+        _id: roleObjectId,
+        isActive: true,
+      })
+      .lean();
 
     if (!role) {
-      throw new NotFoundException('Role not found');
+      throw new NotFoundException(
+        'Role not found',
+      );
     }
 
-    const screen = await this.screenModel.findById(
-      dto.screenId,
+    if (
+      !dto.permissions ||
+      dto.permissions.length === 0
+    ) {
+      await this.rolePermissionModel.updateMany(
+        {
+          roleId: roleObjectId,
+          isActive: true,
+        },
+        {
+          $set: {
+            isActive: false,
+          },
+        },
+      );
+
+      return {
+        message:
+          'All permissions removed successfully',
+        roleId,
+        permissions: [],
+      };
+    }
+
+    const uniquePermissions = Array.from(
+      new Map(
+        dto.permissions.map((permission) => [
+          `${permission.screenId}_${permission.actionId}`,
+          permission,
+        ]),
+      ).values(),
     );
 
-    if (!screen) {
-      throw new NotFoundException('Screen not found');
-    }
+    const screenIds = [
+      ...new Set(
+        uniquePermissions.map(
+          (permission) =>
+            permission.screenId,
+        ),
+      ),
+    ];
 
-    const validActions =
-      await this.actionModel.find({
-        _id: { $in: dto.actionIds },
+    const actionIds = [
+      ...new Set(
+        uniquePermissions.map(
+          (permission) =>
+            permission.actionId,
+        ),
+      ),
+    ];
+
+    const screens =
+      await this.screenModel.find({
+        _id: {
+          $in: screenIds.map(
+            (id) => new Types.ObjectId(id),
+          ),
+        },
         isActive: true,
       });
 
-    const validActionIds = validActions.map(
-      action => action._id.toString(),
+    const validScreenIds = new Set(
+      screens.map((screen) =>
+        screen._id.toString(),
+      ),
     );
 
-    await this.rolePermissionModel.updateMany(
-      {
-        roleId,
-        screenId: dto.screenId,
-      },
-      {
-        $set: {
-          isActive: false,
+    const invalidScreenIds =
+      screenIds.filter(
+        (id) => !validScreenIds.has(id),
+      );
+
+    if (invalidScreenIds.length > 0) {
+      throw new BadRequestException(
+        `Invalid or inactive screen IDs: ${invalidScreenIds.join(', ')}`,
+      );
+    }
+
+
+    const actions =
+      await this.actionModel.find({
+        _id: {
+          $in: actionIds.map(
+            (id) => new Types.ObjectId(id),
+          ),
         },
-      },
+        isActive: true,
+      });
+
+    const validActionIds = new Set(
+      actions.map((action) =>
+        action._id.toString(),
+      ),
     );
 
-    if (validActionIds.length > 0) {
-      await this.rolePermissionModel.bulkWrite(
-        validActionIds.map(actionId => ({
+    const invalidActionIds =
+      actionIds.filter(
+        (id) => !validActionIds.has(id),
+      );
+
+    if (invalidActionIds.length > 0) {
+      throw new BadRequestException(
+        `Invalid or inactive action IDs: ${invalidActionIds.join(', ')}`,
+      );
+    }
+
+    const requestedPermissionKeys =
+      new Set(
+        uniquePermissions.map(
+          (permission) =>
+            `${permission.screenId}_${permission.actionId}`,
+        ),
+      );
+
+    const existingPermissions =
+      await this.rolePermissionModel.find({
+        roleId: roleObjectId,
+      });
+
+    const permissionsToDeactivate =
+      existingPermissions.filter(
+        (permission) =>
+          !requestedPermissionKeys.has(
+            `${permission.screenId.toString()}_${permission.actionId.toString()}`,
+          ),
+      );
+
+    if (
+      permissionsToDeactivate.length > 0
+    ) {
+      await this.rolePermissionModel.updateMany(
+        {
+          _id: {
+            $in: permissionsToDeactivate.map(
+              (permission) =>
+                permission._id,
+            ),
+          },
+        },
+        {
+          $set: {
+            isActive: false,
+          },
+        },
+      );
+    }
+
+
+    const bulkOperations =
+      uniquePermissions.map(
+        (permission) => ({
           updateOne: {
             filter: {
-              roleId: new Types.ObjectId(roleId),
-              screenId: new Types.ObjectId(dto.screenId),
-              actionId: new Types.ObjectId(actionId),
+              roleId: roleObjectId,
+              screenId:
+                new Types.ObjectId(
+                  permission.screenId,
+                ),
+              actionId:
+                new Types.ObjectId(
+                  permission.actionId,
+                ),
             },
+
             update: {
               $set: {
                 isActive: true,
               },
+
+              $setOnInsert: {
+                roleId: roleObjectId,
+                screenId:
+                  new Types.ObjectId(
+                    permission.screenId,
+                  ),
+                actionId:
+                  new Types.ObjectId(
+                    permission.actionId,
+                  ),
+              },
             },
+
             upsert: true,
           },
-        })),
+        }),
+      );
+
+    if (bulkOperations.length > 0) {
+      await this.rolePermissionModel.bulkWrite(
+        bulkOperations,
       );
     }
+    const updatedPermissions =
+      await this.rolePermissionModel
+        .find({
+          roleId: roleObjectId,
+          isActive: true,
+        })
+        .populate({
+          path: 'screenId',
+          select: 'name code',
+        })
+        .populate({
+          path: 'actionId',
+          select: 'name code',
+        })
+        .lean();
 
-    return this.findByRole(roleId);
+    return {
+      message:
+        'Role permissions updated successfully',
+      roleId,
+      permissions: updatedPermissions,
+    };
   }
 }
