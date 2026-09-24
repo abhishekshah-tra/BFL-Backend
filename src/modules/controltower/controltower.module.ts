@@ -12,6 +12,9 @@ import {
 } from '../../schemas/warehouse.schema.js';
 import { ControltowerController } from './controltower.controller.js';
 import { ControltowerService } from './controltower.service.js';
+import { OperationsController } from './operations.controller.js';
+import { ProcessDetailsController } from './process-details.controller.js';
+import { SimulationController } from './simulation.controller.js';
 
 @Module({
   imports: [
@@ -30,7 +33,12 @@ import { ControltowerService } from './controltower.service.js';
       },
     ]),
   ],
-  controllers: [ControltowerController],
+  controllers: [
+    ControltowerController,
+    OperationsController,
+    ProcessDetailsController,
+    SimulationController,
+  ],
   providers: [ControltowerService],
 })
 export class ControltowerModule {}
